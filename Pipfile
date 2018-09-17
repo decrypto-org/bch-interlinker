@@ -1,0 +1,14 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+python-bitcoinrpc = "*"
+rx = "*"
+tqdm = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.7"
