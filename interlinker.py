@@ -34,16 +34,18 @@ class Block:
     def __repr__(self):
         return '<Block%s>' % {'id': self.id, 'target': self.target, 'level': self.level}
 
+class BlockNotFound(Exception):
+    pass
+
 def get_block_header(blk):
     BLOCK_NOT_FOUND_ERROR_CODE = -5
     try:
         return rpc_connection.getblockheader(blk)
     except JSONRPCException as err:
         if err.code == BLOCK_NOT_FOUND_ERROR_CODE:
-            return False
-
-class BlockNotFound(Exception):
-    pass
+            raise BlockNotFound(blk)
+        else:
+            raise
 
 def blocks_between(from_block, to_block=None):
     from_block = get_block_header(from_block)
