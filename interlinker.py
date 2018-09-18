@@ -27,9 +27,9 @@ def level(block_id, target):
 
 class Block:
     def __init__(self, header):
-        self.id = int(header['hash'], 16)
+        self.id = header['hash']
         self.target = bits_to_target(int(header['bits'], 16))
-        self.level = level(self.id, self.target)
+        self.level = level(int(self.id, 16), self.target)
 
     def __repr__(self):
         return '<Block%s>' % {'id': self.id, 'target': self.target, 'level': self.level}
