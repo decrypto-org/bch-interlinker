@@ -12,15 +12,7 @@ rpc_connection = AuthServiceProxy("http://%s:%s@%s:%s" %
             config['daemon']['host'], config['daemon']['port']))
 
 STARTING_BLOCK = config['fork']['startingblock']
-
-def bits_to_target(bits):
-    bitsN = (bits >> 24) & 0xff
-    if not (bitsN >= 0x03 and bitsN <= 0x1d):
-        raise Exception("First part of bits should be in [0x03, 0x1d]")
-    bitsBase = bits & 0xffffff
-    if not (bitsBase >= 0x8000 and bitsBase <= 0x7fffff):
-        raise Exception("Second part of bits should be in [0x8000, 0x7fffff]")
-    return bitsBase << (8 * (bitsN-3))
+MAX_TARGET = int(config['nipopows']['maxtarget'], 16)
 
 def level(block_id, target):
     return -int(math.ceil(math.log(float(block_id) / target, 2)))
@@ -28,11 +20,10 @@ def level(block_id, target):
 class Block:
     def __init__(self, header):
         self.id = header['hash']
-        self.target = bits_to_target(int(header['bits'], 16))
-        self.level = level(int(self.id, 16), self.target)
+        self.level = level(int(self.id, 16), MAX_TARGET)
 
     def __repr__(self):
-        return '<Block%s>' % {'id': self.id, 'target': self.target, 'level': self.level}
+        return '<Block%s>' % {'id': self.id, 'level': self.level}
 
 class BlockNotFound(Exception):
     pass
