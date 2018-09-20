@@ -1,7 +1,6 @@
 from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 import math
 from tqdm import tqdm
-from rx import Observable
 import configparser
 
 config = configparser.ConfigParser()
@@ -64,11 +63,14 @@ def interlink(best_block):
 def get_best_block_hash():
     return rpc_connection.getbestblockhash()
 
-Observable.interval(1000) \
-        .map(lambda _: get_best_block_hash()) \
-        .distinct_until_changed() \
-        .map(interlink) \
-        .subscribe(lambda x: print('new interlink', x)) 
+if __name__ == '__main__':
+    from time import sleep
 
-while True:
-    pass
+    last_block_hash = '0' * 64
+    while True:
+        cur_block_hash = get_best_block_hash()
+        if cur_block_hash != last_block_hash:
+            print('new interlink', interlink(cur_block_hash))
+            last_block_hash = cur_block_hash
+
+        sleep(1) # second
