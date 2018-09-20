@@ -64,7 +64,6 @@ def get_best_block_hash():
     return rpc_connection.getbestblockhash()
 
 def send_velvet_tx(ascii_str, dust_destination, dust=1e-5):
-    from binascii import hexlify
     data = bytearray(str(ascii_str), 'ascii').hex()
     raw_tx = rpc_connection.createrawtransaction([], {dust_destination: dust, 'data': data})
     funded_raw_tx = rpc_connection.fundrawtransaction(raw_tx)['hex']
