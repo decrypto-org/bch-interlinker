@@ -63,6 +63,14 @@ def interlink(best_block):
 def get_best_block_hash():
     return rpc_connection.getbestblockhash()
 
+def send_velvet_tx(ascii_str, dust_destination, dust=1e-5):
+    from binascii import hexlify
+    data = bytearray(str(ascii_str), 'ascii').hex()
+    raw_tx = rpc_connection.createrawtransaction([], {dust_destination: dust, 'data': data})
+    funded_raw_tx = rpc_connection.fundrawtransaction(raw_tx)['hex']
+    signed_funded_raw_tx = rpc_connection.signrawtransaction(funded_raw_tx)['hex']
+    return rpc_connection.sendrawtransaction(signed_funded_raw_tx)
+
 if __name__ == '__main__':
     from time import sleep
 
@@ -70,7 +78,10 @@ if __name__ == '__main__':
     while True:
         cur_block_hash = get_best_block_hash()
         if cur_block_hash != last_block_hash:
-            print('new interlink', interlink(cur_block_hash))
             last_block_hash = cur_block_hash
+            new_interlink = interlink(cur_block_hash)
+            print('new interlink', new_interlink)
+            print('velvet tx', send_velvet_tx(str(new_interlink), \
+                config['fork']['VelvetTxDestination']))
 
         sleep(1) # second
