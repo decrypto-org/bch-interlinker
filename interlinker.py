@@ -65,8 +65,9 @@ def get_best_block_hash():
 
 def send_velvet_tx(ascii_str, dust_destination, dust=1e-5):
     data = bytearray(str(ascii_str), 'ascii').hex()
+    change_address = rpc_connection.getaccountaddress("")
     raw_tx = rpc_connection.createrawtransaction([], {dust_destination: dust, 'data': data})
-    funded_raw_tx = rpc_connection.fundrawtransaction(raw_tx)['hex']
+    funded_raw_tx = rpc_connection.fundrawtransaction(raw_tx, {'changeAddress': change_address})['hex']
     signed_funded_raw_tx = rpc_connection.signrawtransaction(funded_raw_tx)['hex']
     return rpc_connection.sendrawtransaction(signed_funded_raw_tx)
 
