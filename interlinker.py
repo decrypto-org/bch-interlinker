@@ -63,11 +63,18 @@ def interlink(best_block):
 def get_best_block_hash():
     return rpc_connection.getbestblockhash()
 
-def send_velvet_tx(ascii_str, dust_destination, dust=1e-5):
-    data = bytearray(str(ascii_str), 'ascii').hex()
+def send_velvet_tx(ascii_str):
+    from bitcoin.core import CMutableTxOut, CScript, CMutableTransaction, OP_RETURN
+
+    payload = bytearray(str(ascii_str), 'ascii')
+    VELVET_FORK_MARKER = b'velvet fork'
+
+    digest_outs = [CMutableTxOut(0, CScript([OP_RETURN, VELVET_FORK_MARKER, payload]))]
+    tx = CMutableTransaction([], digest_outs)
+
     change_address = rpc_connection.getaccountaddress("")
-    raw_tx = rpc_connection.createrawtransaction([], {dust_destination: dust, 'data': data})
-    funded_raw_tx = rpc_connection.fundrawtransaction(raw_tx, {'changeAddress': change_address})['hex']
+    funded_raw_tx = rpc_connection.fundrawtransaction(tx.serialize().hex(),
+            {'changeAddress': change_address})['hex']
     signed_funded_raw_tx = rpc_connection.signrawtransaction(funded_raw_tx)['hex']
     return rpc_connection.sendrawtransaction(signed_funded_raw_tx)
 
@@ -81,7 +88,6 @@ if __name__ == '__main__':
             last_block_hash = cur_block_hash
             new_interlink = interlink(cur_block_hash)
             print('new interlink', new_interlink)
-            print('velvet tx', send_velvet_tx(str(new_interlink), \
-                config['fork']['VelvetTxDestination']))
+            print('velvet tx', send_velvet_tx(str(new_interlink)))
 
         sleep(1) # second
