@@ -1,4 +1,6 @@
 def mtr(leafs):
+    assert len(leafs) > 0
+
     from hashlib import sha256
     from itertools import zip_longest
 
@@ -42,6 +44,10 @@ if __name__ == '__main__':
                         ]
                     ]
             self.assertEqual(mtr(txs), expected_merkleroot)
+
+        def test_no_leafs(self):
+            with self.assertRaises(AssertionError):
+                mtr([])
 
 
     unittest.main()
