@@ -3,6 +3,8 @@ import math
 from tqdm import tqdm
 import configparser
 
+from merkle import mtr
+
 config = configparser.ConfigParser()
 config.read('config.ini')
 
@@ -18,8 +20,8 @@ def level(block_id, target):
 
 class Block:
     def __init__(self, header):
-        self.id = header['hash']
-        self.level = level(int(self.id, 16), MAX_TARGET)
+        self.id = bytes.fromhex(header['hash'])[::-1] # internal byte order
+        self.level = level(int(header['hash'], 16), MAX_TARGET)
 
     def __repr__(self):
         return '<Block%s>' % {'id': self.id, 'level': self.level}
@@ -54,22 +56,18 @@ def blocks_between(from_block, to_block=None):
 
 
 def interlink(best_block):
-    interlink = {}
+    interlink = []
     for blk in tqdm(blocks_between(STARTING_BLOCK, best_block)):
-        for i in range(blk.level + 1):
-            interlink[i] = blk.id
+        interlink[:blk.level + 1] = [blk.id] * (blk.level + 1)
     return interlink
 
 def get_best_block_hash():
     return rpc_connection.getbestblockhash()
 
-def send_velvet_tx(ascii_str):
+def send_velvet_tx(payload_buf):
     from bitcoin.core import CMutableTxOut, CScript, CMutableTransaction, OP_RETURN
-
-    payload = bytearray(str(ascii_str), 'ascii')
     VELVET_FORK_MARKER = b'velvet fork'
-
-    digest_outs = [CMutableTxOut(0, CScript([OP_RETURN, VELVET_FORK_MARKER, payload]))]
+    digest_outs = [CMutableTxOut(0, CScript([OP_RETURN, VELVET_FORK_MARKER, payload_buf]))]
     tx = CMutableTransaction([], digest_outs)
 
     change_address = rpc_connection.getaccountaddress("")
@@ -87,7 +85,9 @@ if __name__ == '__main__':
         if cur_block_hash != last_block_hash:
             last_block_hash = cur_block_hash
             new_interlink = interlink(cur_block_hash)
-            print('new interlink', new_interlink)
-            print('velvet tx', send_velvet_tx(str(new_interlink)))
+            interlink_mtr = mtr(new_interlink)
+            print('new interlink', [x[::-1].hex() for x in new_interlink])
+            print('mtr hash', interlink_mtr.hex())
+            print('velvet tx', send_velvet_tx(interlink_mtr))
 
         sleep(1) # second
