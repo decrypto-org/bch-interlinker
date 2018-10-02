@@ -66,7 +66,7 @@ def get_best_block_hash():
 
 def send_velvet_tx(payload_buf):
     from bitcoin.core import CMutableTxOut, CScript, CMutableTransaction, OP_RETURN
-    VELVET_FORK_MARKER = b'velvet fork'
+    VELVET_FORK_MARKER = b'interlink'
     digest_outs = [CMutableTxOut(0, CScript([OP_RETURN, VELVET_FORK_MARKER, payload_buf]))]
     tx = CMutableTransaction([], digest_outs)
 
