@@ -29,30 +29,17 @@ class Block:
     def __repr__(self):
         return '<Block%s>' % {'id': self.id, 'level': self.level}
 
-class BlockNotFound(Exception):
-    pass
-
-def get_block_header(blk):
-    BLOCK_NOT_FOUND_ERROR_CODE = -5
-    try:
-        return rpc.getblockheader(blk)
-    except JSONRPCException as err:
-        if err.code == BLOCK_NOT_FOUND_ERROR_CODE:
-            raise BlockNotFound(blk)
-        else:
-            raise
-
 def blocks_between(from_block, to_block=None):
-    from_block = get_block_header(from_block)
+    from_block = rpc.getblockheader(from_block)
     if to_block is not None:
-        to_block = get_block_header(to_block)
+        to_block = rpc.getblockheader(to_block)
 
     block = from_block
     while block != to_block:
         yield Block(block)
         if 'nextblockhash' not in block:
             break
-        block = get_block_header(block['nextblockhash'])
+        block = rpc.getblockheader(block['nextblockhash'])
 
     if to_block is not None:
         yield Block(to_block)
