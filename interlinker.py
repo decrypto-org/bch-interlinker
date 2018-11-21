@@ -18,13 +18,13 @@ rpc = AuthServiceProxy("http://%s:%s@%s:%s" %
 VELVET_FORK_GENESIS = config['fork']['startingblock']
 MAX_TARGET = int(config['nipopows']['maxtarget'], 16)
 
-def level(block_id, target):
+def level(block_id, target=MAX_TARGET):
     return -int(math.ceil(math.log(float(block_id) / target, 2)))
 
 class Block:
     def __init__(self, header):
         self.id = bytes.fromhex(header['hash'])[::-1] # internal byte order
-        self.level = level(int(header['hash'], 16), MAX_TARGET)
+        self.level = level(int(header['hash'], 16))
 
     def __repr__(self):
         return '<Block%s>' % {'id': self.id, 'level': self.level}
