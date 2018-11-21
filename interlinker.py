@@ -62,14 +62,16 @@ def interlink(best_block):
         interlink[:blk.level + 1] = [blk.id] * (blk.level + 1)
     return interlink
 
-def send_velvet_tx(payload_buf):
+def create_raw_velvet_tx(payload_buf):
     from bitcoin.core import CMutableTxOut, CScript, CMutableTransaction, OP_RETURN
     VELVET_FORK_MARKER = b'interlink'
     digest_outs = [CMutableTxOut(0, CScript([OP_RETURN, VELVET_FORK_MARKER, payload_buf]))]
     tx = CMutableTransaction([], digest_outs)
+    return tx.serialize().hex()
 
+def send_velvet_tx(payload_buf):
     change_address = rpc.getaccountaddress("")
-    funded_raw_tx = rpc.fundrawtransaction(tx.serialize().hex(),
+    funded_raw_tx = rpc.fundrawtransaction(create_raw_velvet_tx(payload_buf),
             {'changeAddress': change_address})['hex']
     signed_funded_raw_tx = rpc.signrawtransaction(funded_raw_tx)['hex']
     return rpc.sendrawtransaction(signed_funded_raw_tx)
