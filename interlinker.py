@@ -1,8 +1,10 @@
-import logging
-from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
-import math
-from tqdm import tqdm
 import configparser
+import logging
+import math
+
+from bitcoin.core import CMutableTxOut, CScript, CMutableTransaction, OP_RETURN
+from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
+from tqdm import tqdm
 
 from merkle import mtr
 
@@ -63,7 +65,6 @@ def interlink(best_block):
     return interlink
 
 def create_raw_velvet_tx(payload_buf):
-    from bitcoin.core import CMutableTxOut, CScript, CMutableTransaction, OP_RETURN
     VELVET_FORK_MARKER = b'interlink'
     digest_outs = [CMutableTxOut(0, CScript([OP_RETURN, VELVET_FORK_MARKER, payload_buf]))]
     tx = CMutableTransaction([], digest_outs)
