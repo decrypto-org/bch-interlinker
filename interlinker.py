@@ -9,7 +9,7 @@ from merkle import mtr
 config = configparser.ConfigParser()
 config.read('config.ini')
 
-rpc_connection = AuthServiceProxy("http://%s:%s@%s:%s" %
+rpc = AuthServiceProxy("http://%s:%s@%s:%s" %
         (config['daemon']['user'], config['daemon']['password'],
             config['daemon']['host'], config['daemon']['port']))
 
@@ -33,7 +33,7 @@ class BlockNotFound(Exception):
 def get_block_header(blk):
     BLOCK_NOT_FOUND_ERROR_CODE = -5
     try:
-        return rpc_connection.getblockheader(blk)
+        return rpc.getblockheader(blk)
     except JSONRPCException as err:
         if err.code == BLOCK_NOT_FOUND_ERROR_CODE:
             raise BlockNotFound(blk)
@@ -62,27 +62,24 @@ def interlink(best_block):
         interlink[:blk.level + 1] = [blk.id] * (blk.level + 1)
     return interlink
 
-def get_best_block_hash():
-    return rpc_connection.getbestblockhash()
-
 def send_velvet_tx(payload_buf):
     from bitcoin.core import CMutableTxOut, CScript, CMutableTransaction, OP_RETURN
     VELVET_FORK_MARKER = b'interlink'
     digest_outs = [CMutableTxOut(0, CScript([OP_RETURN, VELVET_FORK_MARKER, payload_buf]))]
     tx = CMutableTransaction([], digest_outs)
 
-    change_address = rpc_connection.getaccountaddress("")
-    funded_raw_tx = rpc_connection.fundrawtransaction(tx.serialize().hex(),
+    change_address = rpc.getaccountaddress("")
+    funded_raw_tx = rpc.fundrawtransaction(tx.serialize().hex(),
             {'changeAddress': change_address})['hex']
-    signed_funded_raw_tx = rpc_connection.signrawtransaction(funded_raw_tx)['hex']
-    return rpc_connection.sendrawtransaction(signed_funded_raw_tx)
+    signed_funded_raw_tx = rpc.signrawtransaction(funded_raw_tx)['hex']
+    return rpc.sendrawtransaction(signed_funded_raw_tx)
 
 if __name__ == '__main__':
     from time import sleep
 
-    last_block_hash = '0' * 64
+    last_block_hash = ''
     while True:
-        cur_block_hash = get_best_block_hash()
+        cur_block_hash = rpc.getbestblockhash()
         if cur_block_hash != last_block_hash:
             last_block_hash = cur_block_hash
             logging.info('new block', cur_block_hash)
