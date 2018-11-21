@@ -15,7 +15,7 @@ rpc = AuthServiceProxy("http://%s:%s@%s:%s" %
         (config['daemon']['user'], config['daemon']['password'],
             config['daemon']['host'], config['daemon']['port']))
 
-STARTING_BLOCK = config['fork']['startingblock']
+VELVET_FORK_GENESIS = config['fork']['startingblock']
 MAX_TARGET = int(config['nipopows']['maxtarget'], 16)
 
 def level(block_id, target):
@@ -60,7 +60,7 @@ def blocks_between(from_block, to_block=None):
 
 def interlink(best_block):
     interlink = []
-    for blk in tqdm(blocks_between(STARTING_BLOCK, best_block)):
+    for blk in tqdm(blocks_between(VELVET_FORK_GENESIS, best_block)):
         interlink[:blk.level + 1] = [blk.id] * (blk.level + 1)
     return interlink
 
