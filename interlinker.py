@@ -1,3 +1,4 @@
+import logging
 from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 import math
 from tqdm import tqdm
@@ -84,10 +85,11 @@ if __name__ == '__main__':
         cur_block_hash = get_best_block_hash()
         if cur_block_hash != last_block_hash:
             last_block_hash = cur_block_hash
+            logging.info('new block', cur_block_hash)
             new_interlink = interlink(cur_block_hash)
             interlink_mtr = mtr(new_interlink)
-            print('new interlink', [x[::-1].hex() for x in new_interlink])
-            print('mtr hash', interlink_mtr.hex())
-            print('velvet tx', send_velvet_tx(interlink_mtr))
+            logging.debug('new interlink', [x[::-1].hex() for x in new_interlink])
+            logging.info('mtr hash', interlink_mtr.hex())
+            logging.info('velvet tx', send_velvet_tx(interlink_mtr))
 
         sleep(1) # second
