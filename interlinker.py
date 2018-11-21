@@ -89,4 +89,4 @@ if __name__ == '__main__':
             logging.info('mtr hash', interlink_mtr.hex())
             logging.info('velvet tx', send_velvet_tx(interlink_mtr))
 
-        sleep(1) # second
+        sleep(5) # second
