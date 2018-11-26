@@ -42,7 +42,6 @@ def interlink(tip_id, interlink_store=None):
     for block_id in intermediate_block_ids:
         intermediate_interlink = interlink_store[block_id] = \
                 intermediate_interlink.update(block_id, level(block_id))
-    interlink_store[tip_id] = intermediate_interlink
     return intermediate_interlink
 
 def create_raw_velvet_tx(payload_buf):
