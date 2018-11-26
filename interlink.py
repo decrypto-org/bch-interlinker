@@ -1,22 +1,27 @@
 from merkle import mtr
 
+def normalized_block_id(maybe_block_id):
+    if isinstance(maybe_block_id, str):
+        return bytearray.fromhex(maybe_block_id)[::-1]
+    return maybe_block_id
+
 class Interlink:
-    def __init__(self, blocks=None):
+    def __init__(self, genesis, blocks=None):
+        self.genesis = normalized_block_id(genesis)
         self.blocks = [] if blocks is None else blocks
 
     def update(self, block_id, level):
-        if isinstance(block_id, str):
-            block_id = bytearray.fromhex(block_id)[::-1]
+        block_id = normalized_block_id(block_id)
         blocks = self.blocks.copy()
         for i in range(0, level+1):
             if i < len(blocks):
                 blocks[i] = block_id
             else:
                 blocks.append(block_id)
-        return Interlink(blocks=blocks)
+        return Interlink(genesis=self.genesis, blocks=blocks)
 
     def as_array(self):
-        return self.blocks
+        return self.blocks + [self.genesis]
 
     def hash(self):
         return mtr(self.as_array())

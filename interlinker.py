@@ -24,13 +24,17 @@ def level(block_id, target=None):
 def prev(block_id):
     return rpc.getblockheader(block_id)['previousblockhash']
 
+def genesis_interlink():
+    return Interlink(genesis=VELVET_FORK_GENESIS).update(VELVET_FORK_GENESIS,
+            level(VELVET_FORK_GENESIS))
+
 def interlink(tip_id, interlink_store=None):
     interlink_store = {} if interlink_store is None else interlink_store
     intermediate_block_ids = deque()
     intermediate_id = tip_id
     while intermediate_id not in interlink_store:
         if intermediate_id == VELVET_FORK_GENESIS:
-            interlink_store[intermediate_id] = Interlink().update(intermediate_id, level(intermediate_id))
+            interlink_store[intermediate_id] = genesis_interlink()
             break
         intermediate_block_ids.appendleft(intermediate_id)
         intermediate_id = prev(intermediate_id)
