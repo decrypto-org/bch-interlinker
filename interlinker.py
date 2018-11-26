@@ -32,10 +32,9 @@ def interlink(tip_id, interlink_store=None):
     interlink_store = {} if interlink_store is None else interlink_store
     intermediate_block_ids = deque()
     intermediate_id = tip_id
+    if VELVET_FORK_GENESIS not in interlink_store:
+        interlink_store[VELVET_FORK_GENESIS] = genesis_interlink()
     while intermediate_id not in interlink_store:
-        if intermediate_id == VELVET_FORK_GENESIS:
-            interlink_store[intermediate_id] = genesis_interlink()
-            break
         intermediate_block_ids.appendleft(intermediate_id)
         intermediate_id = prev(intermediate_id)
 
