@@ -57,7 +57,7 @@ def send_velvet_tx(payload_buf):
     signed_funded_raw_tx = rpc.signrawtransaction(funded_raw_tx)['hex']
     return rpc.sendrawtransaction(signed_funded_raw_tx)
 
-if __name__ == '__main__':
+def main():
     from os import path
     from time import sleep
 
@@ -86,3 +86,6 @@ if __name__ == '__main__':
         logger.debug('new interlink "%s"', new_interlink.as_array())
         logger.info('mtr hash "%s"', new_interlink.hash().hex())
         logger.info('velvet tx "%s"', send_velvet_tx(new_interlink.hash()))
+
+if __name__ == '__main__':
+    main()
