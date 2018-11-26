@@ -68,7 +68,7 @@ def main():
     db_path = path.join(cache_path, 'db')
 
     logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p %Z')
-    logger = logging.getLogger('interlinker')
+    logger = logging.getLogger(APP_NAME)
     logger.setLevel(logging.DEBUG)
 
     tip_id = ''
