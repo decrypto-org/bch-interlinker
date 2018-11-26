@@ -28,19 +28,19 @@ def genesis_interlink():
     return Interlink(genesis=VELVET_FORK_GENESIS).update(VELVET_FORK_GENESIS,
             level(VELVET_FORK_GENESIS))
 
-def interlink(tip_id, interlink_store=None):
-    interlink_store = {} if interlink_store is None else interlink_store
+def interlink(tip_id, store=None):
+    store = {} if store is None else store
     intermediate_block_ids = deque()
     intermediate_id = tip_id
-    if VELVET_FORK_GENESIS not in interlink_store:
-        interlink_store[VELVET_FORK_GENESIS] = genesis_interlink()
-    while intermediate_id not in interlink_store:
+    if VELVET_FORK_GENESIS not in store:
+        store[VELVET_FORK_GENESIS] = genesis_interlink()
+    while intermediate_id not in store:
         intermediate_block_ids.appendleft(intermediate_id)
         intermediate_id = prev(intermediate_id)
 
-    intermediate_interlink = interlink_store[intermediate_id]
+    intermediate_interlink = store[intermediate_id]
     for block_id in intermediate_block_ids:
-        intermediate_interlink = interlink_store[block_id] = \
+        intermediate_interlink = store[block_id] = \
                 intermediate_interlink.update(block_id, level(block_id))
     return intermediate_interlink
 
