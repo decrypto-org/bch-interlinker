@@ -1,4 +1,6 @@
 from collections import deque
+from os import path
+from time import sleep
 import configparser
 import logging
 import math
@@ -6,6 +8,7 @@ import shelve
 
 from bitcoin.core import CMutableTxOut, CScript, CMutableTransaction, OP_RETURN
 from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
+from xdg.BaseDirectory import save_cache_path
 
 from interlink import Interlink
 
@@ -58,11 +61,6 @@ def send_velvet_tx(payload_buf):
     return rpc.sendrawtransaction(signed_funded_raw_tx)
 
 def main():
-    from os import path
-    from time import sleep
-
-    from xdg.BaseDirectory import save_cache_path
-
     APP_NAME = 'bch-interlinker'
     NEW_TIP_CHECK_INTERVAL_SECONDS = 5
 
