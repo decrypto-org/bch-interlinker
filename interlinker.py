@@ -8,7 +8,7 @@ import shelve
 
 from bitcoin.core import CMutableTxOut, CScript, CMutableTransaction, OP_RETURN
 from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
-from xdg.BaseDirectory import save_cache_path
+from xdg.BaseDirectory import save_cache_path, save_config_path
 
 from interlink import Interlink
 
@@ -56,11 +56,13 @@ def main():
     APP_NAME = 'bch-interlinker'
     NEW_TIP_CHECK_INTERVAL_SECONDS = 5
 
+    config_path = save_config_path(APP_NAME)
     cache_path = save_cache_path(APP_NAME)
     db_path = path.join(cache_path, 'db')
+    config_file_path = path.join(config_path, 'config.ini')
 
     config = configparser.ConfigParser()
-    config.read('config.ini')
+    config.read(config_file_path)
 
     rpc = AuthServiceProxy("http://%s:%s@%s:%s" %
             (config['daemon']['user'], config['daemon']['password'],
