@@ -67,16 +67,20 @@ def send_velvet_tx(payload_buf):
 if __name__ == '__main__':
     from time import sleep
 
+    logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p %Z')
+    logger = logging.getLogger('interlinker')
+    logger.setLevel(logging.DEBUG)
+
     last_block_hash = ''
     while True:
         cur_block_hash = rpc.getbestblockhash()
         if cur_block_hash != last_block_hash:
             last_block_hash = cur_block_hash
-            logging.info('new block', cur_block_hash)
+            logger.info('new block "%s"', cur_block_hash)
             new_interlink = interlink(cur_block_hash)
             interlink_mtr = mtr(new_interlink)
-            logging.debug('new interlink', [x[::-1].hex() for x in new_interlink])
-            logging.info('mtr hash', interlink_mtr.hex())
-            logging.info('velvet tx', send_velvet_tx(interlink_mtr))
+            logger.debug('new interlink "%s"', [x[::-1].hex() for x in new_interlink])
+            logger.info('mtr hash "%s"', interlink_mtr.hex())
+            logger.info('velvet tx "%s"', send_velvet_tx(interlink_mtr))
 
         sleep(5) # second
