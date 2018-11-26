@@ -12,6 +12,9 @@ from xdg.BaseDirectory import save_cache_path, save_config_path
 
 from interlink import Interlink
 
+VELVET_FORK_GENESIS = '00000000000001934669a81ecfaa64735597751ac5ca78c4d8f345f11c2237cf'
+MAX_TARGET = 0xffff0000000000000000000000000000000000000000000000000000
+
 def level(block_id, target=None):
     target = MAX_TARGET if target is None else target
     if isinstance(block_id, str):
@@ -52,7 +55,7 @@ def send_velvet_tx(payload_buf):
     return rpc.sendrawtransaction(signed_funded_raw_tx)
 
 def main():
-    global VELVET_FORK_GENESIS, MAX_TARGET, rpc
+    global rpc
     APP_NAME = 'bch-interlinker'
     NEW_TIP_CHECK_INTERVAL_SECONDS = 5
 
@@ -67,9 +70,6 @@ def main():
     rpc = AuthServiceProxy("http://%s:%s@%s:%s" %
             (config['daemon']['user'], config['daemon']['password'],
                 config['daemon']['host'], config['daemon']['port']))
-
-    VELVET_FORK_GENESIS = config['fork']['startingblock']
-    MAX_TARGET = int(config['nipopows']['maxtarget'], 16)
 
     logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p %Z')
     logger = logging.getLogger(APP_NAME)
