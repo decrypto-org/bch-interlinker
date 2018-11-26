@@ -1,12 +1,13 @@
 import configparser
 import logging
 import math
+from collections import deque
 
 from bitcoin.core import CMutableTxOut, CScript, CMutableTransaction, OP_RETURN
 from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 from tqdm import tqdm
 
-from merkle import mtr
+from interlink import Interlink
 
 config = configparser.ConfigParser()
 config.read('config.ini')
@@ -18,38 +19,31 @@ rpc = AuthServiceProxy("http://%s:%s@%s:%s" %
 VELVET_FORK_GENESIS = config['fork']['startingblock']
 MAX_TARGET = int(config['nipopows']['maxtarget'], 16)
 
+interlink_store = {}
+
 def level(block_id, target=MAX_TARGET):
+    if isinstance(block_id, str):
+        block_id = int(block_id, 16)
     return -int(math.ceil(math.log(float(block_id) / target, 2)))
 
-class Block:
-    def __init__(self, header):
-        self.id = bytes.fromhex(header['hash'])[::-1] # internal byte order
-        self.level = level(int(header['hash'], 16))
+def prev(block_id):
+    return rpc.getblockheader(block_id)['previousblockhash']
 
-    def __repr__(self):
-        return '<Block%s>' % {'id': self.id, 'level': self.level}
-
-def blocks_between(from_block, to_block=None):
-    from_block = rpc.getblockheader(from_block)
-    if to_block is not None:
-        to_block = rpc.getblockheader(to_block)
-
-    block = from_block
-    while block != to_block:
-        yield Block(block)
-        if 'nextblockhash' not in block:
+def interlink(tip_id):
+    intermediate_block_ids = deque()
+    intermediate_id = tip_id
+    while intermediate_id not in interlink_store:
+        if intermediate_id == VELVET_FORK_GENESIS:
+            interlink_store[intermediate_id] = Interlink().update(intermediate_id, level(intermediate_id))
             break
-        block = rpc.getblockheader(block['nextblockhash'])
+        intermediate_block_ids.appendleft(intermediate_id)
+        intermediate_id = prev(intermediate_id)
 
-    if to_block is not None:
-        yield Block(to_block)
-
-
-def interlink(best_block):
-    interlink = []
-    for blk in tqdm(blocks_between(VELVET_FORK_GENESIS, best_block)):
-        interlink[:blk.level + 1] = [blk.id] * (blk.level + 1)
-    return interlink
+    intermediate_interlink = interlink_store[intermediate_id]
+    for block_id in intermediate_block_ids:
+        intermediate_interlink = intermediate_interlink.update(block_id, level(block_id))
+    interlink_store[tip_id] = intermediate_interlink
+    return intermediate_interlink
 
 def create_raw_velvet_tx(payload_buf):
     VELVET_FORK_MARKER = b'interlink'
@@ -78,9 +72,8 @@ if __name__ == '__main__':
             last_block_hash = cur_block_hash
             logger.info('new block "%s"', cur_block_hash)
             new_interlink = interlink(cur_block_hash)
-            interlink_mtr = mtr(new_interlink)
-            logger.debug('new interlink "%s"', [x[::-1].hex() for x in new_interlink])
-            logger.info('mtr hash "%s"', interlink_mtr.hex())
-            logger.info('velvet tx "%s"', send_velvet_tx(interlink_mtr))
+            logger.debug('new interlink "%s"', new_interlink.as_array())
+            logger.info('mtr hash "%s"', new_interlink.hash().hex())
+            logger.info('velvet tx "%s"', send_velvet_tx(new_interlink.hash()))
 
         sleep(5) # second
