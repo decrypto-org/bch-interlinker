@@ -71,7 +71,7 @@ def main():
             (config['daemon']['user'], config['daemon']['password'],
                 config['daemon']['host'], config['daemon']['port']))
 
-    logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p %Z')
+    logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', datefmt='%d/%m/%y %H:%M:%S %Z')
     logger = logging.getLogger(APP_NAME)
     logger.setLevel(logging.DEBUG)
 
