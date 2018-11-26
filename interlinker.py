@@ -60,6 +60,13 @@ def send_velvet_tx(payload_buf):
 
 if __name__ == '__main__':
     from time import sleep
+    from os import path
+    from xdg.BaseDirectory import save_cache_path
+
+    APP_NAME = 'bch-interlinker'
+
+    cache_path = save_cache_path(APP_NAME)
+    db_path = path.join(cache_path, 'db')
 
     logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p %Z')
     logger = logging.getLogger('interlinker')
@@ -71,7 +78,7 @@ if __name__ == '__main__':
         if cur_block_hash != last_block_hash:
             last_block_hash = cur_block_hash
             logger.info('new block "%s"', cur_block_hash)
-            with shelve.open('interlink_store') as db:
+            with shelve.open(db_path) as db:
                 new_interlink = interlink(cur_block_hash, db)
             logger.debug('new interlink "%s"', new_interlink.as_array())
             logger.info('mtr hash "%s"', new_interlink.hash().hex())

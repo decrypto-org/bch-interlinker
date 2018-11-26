@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "7ae7fcb3473a0dca419a31a273313e30a04b411f2b3b7c3b3743e13aea582d42"
+            "sha256": "0ff1698e94ee665524890eb387d4dbb2cd7a5d93ccfaea6bdc603989d97483e5"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -18,6 +18,7 @@
     "default": {
         "python-bitcoinlib": {
             "hashes": [
+                "sha256:0fe7de6c083e12479eb12d3764ece83e5c73b1c48e806009ee1a1aa02da098cf",
                 "sha256:4c5ab6d6937086b2964a97182ca04d9a7ecfe9295ab9520f58ac13a1f54e9183"
             ],
             "index": "pypi",
@@ -25,14 +26,22 @@
         },
         "python-bitcoinrpc": {
             "hashes": [
-                "sha256:8f4615ff3bb0e9a7cfcf44024fc4aa7737bf70f4a1641f85255eabe04c03c917"
+                "sha256:a6a6f35672635163bc491c25fe29520bdd063dedbeda3b37bf5be97aa038c6e7"
             ],
             "index": "pypi",
             "version": "==1.0"
         },
+        "pyxdg": {
+            "hashes": [
+                "sha256:1948ff8e2db02156c0cccd2529b43c0cff56ebaa71f5f021bbd755bc1419190e"
+            ],
+            "index": "pypi",
+            "version": "==0.26"
+        },
         "tqdm": {
             "hashes": [
-                "sha256:3c4d4a5a41ef162dd61f1edb86b0e1c7859054ab656b2e7c7b77e7fbf6d9f392"
+                "sha256:3c4d4a5a41ef162dd61f1edb86b0e1c7859054ab656b2e7c7b77e7fbf6d9f392",
+                "sha256:5b4d5549984503050883bc126280b386f5f4ca87e6c023c5d015655ad75bdebb"
             ],
             "index": "pypi",
             "version": "==4.28.1"
