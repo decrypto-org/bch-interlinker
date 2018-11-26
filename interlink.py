@@ -5,6 +5,8 @@ class Interlink:
         self.blocks = [] if blocks is None else blocks
 
     def update(self, block_id, level):
+        if isinstance(block_id, str):
+            block_id = bytearray.fromhex(block_id)[::-1]
         blocks = self.blocks.copy()
         for i in range(0, level+1):
             if i < len(blocks):
