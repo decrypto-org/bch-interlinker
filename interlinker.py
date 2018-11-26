@@ -75,13 +75,13 @@ if __name__ == '__main__':
     tip_id = ''
     while True:
         possibly_new_tip_id = rpc.getbestblockhash()
-        if possibly_new_tip_id != tip_id:
-            tip_id = possibly_new_tip_id
-            logger.info('new block "%s"', tip_id)
-            with shelve.open(db_path) as db:
-                new_interlink = interlink(tip_id, db)
-            logger.debug('new interlink "%s"', new_interlink.as_array())
-            logger.info('mtr hash "%s"', new_interlink.hash().hex())
-            logger.info('velvet tx "%s"', send_velvet_tx(new_interlink.hash()))
-
-        sleep(5) # second
+        if possibly_new_tip_id == tip_id:
+            sleep(5) # second
+            continue
+        tip_id = possibly_new_tip_id
+        logger.info('new block "%s"', tip_id)
+        with shelve.open(db_path) as db:
+            new_interlink = interlink(tip_id, db)
+        logger.debug('new interlink "%s"', new_interlink.as_array())
+        logger.info('mtr hash "%s"', new_interlink.hash().hex())
+        logger.info('velvet tx "%s"', send_velvet_tx(new_interlink.hash()))
