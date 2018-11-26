@@ -12,17 +12,8 @@ from xdg.BaseDirectory import save_cache_path
 
 from interlink import Interlink
 
-config = configparser.ConfigParser()
-config.read('config.ini')
-
-rpc = AuthServiceProxy("http://%s:%s@%s:%s" %
-        (config['daemon']['user'], config['daemon']['password'],
-            config['daemon']['host'], config['daemon']['port']))
-
-VELVET_FORK_GENESIS = config['fork']['startingblock']
-MAX_TARGET = int(config['nipopows']['maxtarget'], 16)
-
-def level(block_id, target=MAX_TARGET):
+def level(block_id, target=None):
+    target = MAX_TARGET if target is None else target
     if isinstance(block_id, str):
         block_id = int(block_id, 16)
     return -int(math.ceil(math.log(float(block_id) / target, 2)))
@@ -61,11 +52,22 @@ def send_velvet_tx(payload_buf):
     return rpc.sendrawtransaction(signed_funded_raw_tx)
 
 def main():
+    global VELVET_FORK_GENESIS, MAX_TARGET, rpc
     APP_NAME = 'bch-interlinker'
     NEW_TIP_CHECK_INTERVAL_SECONDS = 5
 
     cache_path = save_cache_path(APP_NAME)
     db_path = path.join(cache_path, 'db')
+
+    config = configparser.ConfigParser()
+    config.read('config.ini')
+
+    rpc = AuthServiceProxy("http://%s:%s@%s:%s" %
+            (config['daemon']['user'], config['daemon']['password'],
+                config['daemon']['host'], config['daemon']['port']))
+
+    VELVET_FORK_GENESIS = config['fork']['startingblock']
+    MAX_TARGET = int(config['nipopows']['maxtarget'], 16)
 
     logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p %Z')
     logger = logging.getLogger(APP_NAME)
