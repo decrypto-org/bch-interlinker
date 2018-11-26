@@ -40,7 +40,8 @@ def interlink(tip_id, interlink_store=None):
 
     intermediate_interlink = interlink_store[intermediate_id]
     for block_id in intermediate_block_ids:
-        intermediate_interlink = intermediate_interlink.update(block_id, level(block_id))
+        intermediate_interlink = interlink_store[block_id] = \
+                intermediate_interlink.update(block_id, level(block_id))
     interlink_store[tip_id] = intermediate_interlink
     return intermediate_interlink
 
