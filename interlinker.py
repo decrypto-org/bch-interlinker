@@ -2,6 +2,7 @@ import configparser
 import logging
 import math
 from collections import deque
+import shelve
 
 from bitcoin.core import CMutableTxOut, CScript, CMutableTransaction, OP_RETURN
 from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
@@ -19,8 +20,6 @@ rpc = AuthServiceProxy("http://%s:%s@%s:%s" %
 VELVET_FORK_GENESIS = config['fork']['startingblock']
 MAX_TARGET = int(config['nipopows']['maxtarget'], 16)
 
-interlink_store = {}
-
 def level(block_id, target=MAX_TARGET):
     if isinstance(block_id, str):
         block_id = int(block_id, 16)
@@ -29,7 +28,8 @@ def level(block_id, target=MAX_TARGET):
 def prev(block_id):
     return rpc.getblockheader(block_id)['previousblockhash']
 
-def interlink(tip_id):
+def interlink(tip_id, interlink_store=None):
+    interlink_store = {} if interlink_store is None else interlink_store
     intermediate_block_ids = deque()
     intermediate_id = tip_id
     while intermediate_id not in interlink_store:
@@ -71,7 +71,8 @@ if __name__ == '__main__':
         if cur_block_hash != last_block_hash:
             last_block_hash = cur_block_hash
             logger.info('new block "%s"', cur_block_hash)
-            new_interlink = interlink(cur_block_hash)
+            with shelve.open('interlink_store') as db:
+                new_interlink = interlink(cur_block_hash, db)
             logger.debug('new interlink "%s"', new_interlink.as_array())
             logger.info('mtr hash "%s"', new_interlink.hash().hex())
             logger.info('velvet tx "%s"', send_velvet_tx(new_interlink.hash()))
