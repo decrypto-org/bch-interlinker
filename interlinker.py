@@ -64,6 +64,7 @@ if __name__ == '__main__':
     from xdg.BaseDirectory import save_cache_path
 
     APP_NAME = 'bch-interlinker'
+    NEW_TIP_CHECK_INTERVAL_SECONDS = 5
 
     cache_path = save_cache_path(APP_NAME)
     db_path = path.join(cache_path, 'db')
@@ -76,7 +77,7 @@ if __name__ == '__main__':
     while True:
         possibly_new_tip_id = rpc.getbestblockhash()
         if possibly_new_tip_id == tip_id:
-            sleep(5) # second
+            sleep(NEW_TIP_CHECK_INTERVAL_SECONDS)
             continue
         tip_id = possibly_new_tip_id
         logger.info('new block "%s"', tip_id)
