@@ -72,14 +72,14 @@ if __name__ == '__main__':
     logger = logging.getLogger('interlinker')
     logger.setLevel(logging.DEBUG)
 
-    last_block_hash = ''
+    tip_id = ''
     while True:
-        cur_block_hash = rpc.getbestblockhash()
-        if cur_block_hash != last_block_hash:
-            last_block_hash = cur_block_hash
-            logger.info('new block "%s"', cur_block_hash)
+        possibly_new_tip_id = rpc.getbestblockhash()
+        if possibly_new_tip_id != tip_id:
+            tip_id = possibly_new_tip_id
+            logger.info('new block "%s"', tip_id)
             with shelve.open(db_path) as db:
-                new_interlink = interlink(cur_block_hash, db)
+                new_interlink = interlink(tip_id, db)
             logger.debug('new interlink "%s"', new_interlink.as_array())
             logger.info('mtr hash "%s"', new_interlink.hash().hex())
             logger.info('velvet tx "%s"', send_velvet_tx(new_interlink.hash()))
