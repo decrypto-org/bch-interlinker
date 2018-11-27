@@ -9,6 +9,9 @@ COPY Pipfile.lock .
 
 RUN set -ex && pipenv install --deploy --system
 
+VOLUME /root/.cache
+VOLUME /root/.config
+
 COPY . .
 
 ENTRYPOINT ["python3", "interlinker.py"]
