@@ -13,3 +13,6 @@ def test_interlink_cascading():
     interlink = interlink.update('0b', 4)
     interlink = interlink.update('0c', 5)
     assert interlink.as_array() == [b'\x0c'] * 6 + [b'\x02']
+
+def test_interlink_str():
+    assert str(Interlink(genesis=b'\x02')) == '[1 * 02]'
