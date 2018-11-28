@@ -88,7 +88,7 @@ def main():
         logger.info('new block "%s"', tip_id)
         with shelve.open(db_path) as db:
             new_interlink = interlink(tip_id, db)
-        logger.debug('new interlink "%s"', new_interlink.as_array())
+        logger.debug('new interlink "%s"', new_interlink)
         logger.info('mtr hash "%s"', new_interlink.hash().hex())
         logger.info('velvet tx "%s"', send_velvet_tx(new_interlink.hash()))
 

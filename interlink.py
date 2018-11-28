@@ -1,4 +1,5 @@
 from merkle import mtr
+from helpers import compact_list_repr
 
 def normalized_block_id(maybe_block_id):
     if isinstance(maybe_block_id, str):
@@ -25,3 +26,6 @@ class Interlink:
 
     def hash(self):
         return mtr(self.as_array())
+
+    def __str__(self):
+        return compact_list_repr(bytearr[::-1].hex() for bytearr in self.as_array())
